@@ -135,6 +135,9 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
     
     /** Is the player in a berry bush? */
     Boolean inBerryBush = null;
+    
+    /** Is the player in powder snow? */
+    Boolean inPowderSnow = null;
 
 
     // "Heavy" object members that need to be set to null on cleanup. //
@@ -751,7 +754,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
      */
     public boolean isResetCond() {
         // NOTE: if optimizing, setYOnGround has to be kept in mind. 
-        return isInLiquid() || isOnClimbable() || isInWeb() || isInBerryBush();
+        return isInLiquid() || isOnClimbable() || isInWeb() || isInBerryBush() || isInPowderSnow();
     }
 
     /**
@@ -801,6 +804,23 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
             }
         }
         return inWeb;
+    }
+
+    /**
+     * Checks if the player is in powder snow.
+     * 
+     * @return true, if the player is in powder snow
+     */
+    public boolean isInPowderSnow() {
+        if (inPowderSnow == null) {
+            if (blockFlags == null || (blockFlags & BlockProperties.F_POWDERSNOW) != 0L) {
+                inPowderSnow = (BlockProperties.getBlockFlags(getTypeId()) & BlockProperties.F_POWDERSNOW) != 0;
+            }
+            else {
+                inPowderSnow = false;
+            }
+        }
+        return inPowderSnow;
     }
 
     /**
@@ -1453,6 +1473,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         this.onSlimeBlock = other.isOnSlimeBlock();
         this.onIce = other.isOnIce();
         this.onSoulSand = other.isOnSoulSand();
+        this.inPowderSnow = other.isInPowderSnow();
         this.onClimbable = other.isOnClimbable();
         // Complex checks last.
         if (!onGround && !isResetCond()) {
@@ -1521,7 +1542,7 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
 
         // Reset cached values.
         node = nodeBelow = null;
-        aboveStairs = inLava = inWater = inWaterLogged = inWeb = onIce = onSoulSand = onHoneyBlock = onSlimeBlock = inBerryBush = onGround = onClimbable = passable = passableBox = null;
+        aboveStairs = inLava = inWater = inWaterLogged = inWeb = onIce = onSoulSand = onHoneyBlock = onSlimeBlock = inBerryBush = inPowderSnow = onGround = onClimbable = passable = passableBox = null;
         onGroundMinY = Double.MAX_VALUE;
         notOnGroundMaxY = Double.MIN_VALUE;
         blockFlags = null;

@@ -45,6 +45,7 @@ import fr.neatmonster.nocheatplus.checks.moving.util.AuxMoving;
 import fr.neatmonster.nocheatplus.checks.moving.util.MovingUtil;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.VelocityFlags;
 import fr.neatmonster.nocheatplus.checks.workaround.WRPT;
+import fr.neatmonster.nocheatplus.compat.Bridge1_17;
 import fr.neatmonster.nocheatplus.compat.Bridge1_13;
 import fr.neatmonster.nocheatplus.compat.Bridge1_9;
 import fr.neatmonster.nocheatplus.compat.BridgeEnchant;
@@ -430,13 +431,21 @@ public class SurvivalFly extends Check {
 
         double vAllowedDistance = 0, vDistanceAboveLimit = 0;
         boolean onOrInMedium = from.isOnHoneyBlock() || from.isInWeb() || from.isInBerryBush() 
-                               || from.isOnClimbable() || from.isInLiquid();
+                               || from.isOnClimbable() || from.isInLiquid() || from.isInPowderSnow();
         
         // Wild-card: allow step height from ground to ground, if not on/in a medium already.
         if (yDistance >= 0.0 && yDistance <= cc.sfStepHeight && toOnGround && fromOnGround && !onOrInMedium) {
             vAllowedDistance = cc.sfStepHeight;
             thisMove.allowstep = true;
             tags.add("groundstep");
+        }
+        
+        // Powder snow, only if not equipped with leather boots, otherwise fallback to climbable blocks.
+        // TODO: Test, adjust.
+        else if (from.isInPowderSnow() && !Bridge1_17.canStandOnPowderSnow(player)) {
+            vAllowedDistance = data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier);
+            vDistanceAboveLimit = thisMove.yDistance - vAllowedDistance;
+            if (vDistanceAboveLimit > 0.0) tags.add("snowasc");
         }
 
         // HoneyBlock
@@ -520,7 +529,6 @@ public class SurvivalFly extends Check {
 
 
 
-
         ///////////////////////
         // Handle violations.
         ///////////////////////
@@ -589,6 +597,9 @@ public class SurvivalFly extends Check {
                 data.liftOffEnvelope = LiftOffEnvelope.LIMIT_LIQUID;
             }
         }
+        else if (thisMove.to.inPowderSnow) {
+            data.liftOffEnvelope = LiftOffEnvelope.LIMIT_POWDER_SNOW;
+        }
         else if (thisMove.to.inWeb) {
             data.liftOffEnvelope = LiftOffEnvelope.NO_JUMP; // TODO: Test.
         }
@@ -616,6 +627,9 @@ public class SurvivalFly extends Check {
                 // TODO: Distinguish strong limit.
                 data.liftOffEnvelope = LiftOffEnvelope.LIMIT_LIQUID;
             }
+        }
+        else if (thisMove.from.inPowderSnow) {
+            data.liftOffEnvelope = LiftOffEnvelope.LIMIT_POWDER_SNOW;
         }
         else if (thisMove.from.inWeb) {
             data.liftOffEnvelope = LiftOffEnvelope.NO_JUMP; // TODO: Test.
@@ -1011,6 +1025,9 @@ public class SurvivalFly extends Check {
         if (from.inWeb || to.inWeb) {
             data.nextFrictionHorizontal = data.nextFrictionVertical = 0.0;
         }
+        if (from.inPowderSnow || to.inPowderSnow) {
+            data.nextFrictionHorizontal = data.nextFrictionVertical = 0.0;
+        }
         // No from#onClimbable check to fix vines fps casue by medium counts, probably wrong place! 
         else if (to.onClimbable) {
             // TODO: Not sure about horizontal (!).
@@ -1103,6 +1120,19 @@ public class SurvivalFly extends Check {
             useBaseModifiersSprint = false; 
             useBaseModifiers = true;
             friction = 0.0; 
+        }
+        
+        // Powder snow
+        // TODO: Scale speed according to freezing tick.
+        else if (thisMove.from.inPowderSnow) {
+            tags.add("hsnow");
+            data.sfBounceTick = 0;
+            data.sfOnIce = 0;
+            hAllowedDistance = Magic.modPowderSnow * thisMove.walkSpeed * cc.survivalFlyWalkingSpeed / 100D;
+            // if (thisMove.yDistance > 0.0 && thisMove.from.onGround && !thisMove.to.onGround) hAllowedDistance *= 2.4;
+            friction = 0.0;
+            useBaseModifiers = true;
+            useBlockOrSneakModifier = true;
         }
         
         // Soulsand
@@ -1420,7 +1450,6 @@ public class SurvivalFly extends Check {
         // Other properties. //
         ///////////////////////
         // TODO: Reset friction on too big change of direction?
-
         // Account for flowing liquids (only if needed).
         // Assume: If in liquids this would be placed right here.
         if (thisMove.downStream && thisMove.hDistance > thisMove.walkSpeed * Magic.modSwim[0] 

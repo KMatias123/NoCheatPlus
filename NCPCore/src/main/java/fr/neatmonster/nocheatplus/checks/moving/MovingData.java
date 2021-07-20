@@ -40,6 +40,7 @@ import fr.neatmonster.nocheatplus.checks.moving.velocity.SimpleAxisVelocity;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.SimpleEntry;
 import fr.neatmonster.nocheatplus.checks.moving.velocity.VelocityFlags;
 import fr.neatmonster.nocheatplus.checks.workaround.WRPT;
+import fr.neatmonster.nocheatplus.compat.Bridge1_17;
 import fr.neatmonster.nocheatplus.compat.blocks.changetracker.BlockChangeReference;
 import fr.neatmonster.nocheatplus.components.data.IDataOnReload;
 import fr.neatmonster.nocheatplus.components.data.IDataOnRemoveSubCheckData;
@@ -466,6 +467,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
         // Simplified.
         if (loc.isInWeb()) {
             liftOffEnvelope = LiftOffEnvelope.NO_JUMP;
+            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+        }
+        else if (loc.isInPowderSnow()) {
+            liftOffEnvelope = LiftOffEnvelope.LIMIT_POWDER_SNOW;
             nextFrictionHorizontal = nextFrictionVertical = 0.0;
         }
         // Actually, here some friction may apply (Vertical)...
