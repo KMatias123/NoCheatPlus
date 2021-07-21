@@ -36,10 +36,10 @@ public class Bridge1_17 {
         return hasIsFrozen;
     }
 
-    public static int getFreezeTicks(final Player player) {
+    public static double getFreezeTicks(final Player player) {
         if (!hasIsFrozen()) return 0;
-        // Capped at 140
-        return Math.min(140, player.getFreezeTicks());
+        // Capped at 140ticks (=7s)
+        return Math.min(7, (player.getFreezeTicks() / 20));
     }
 
     /**
@@ -71,7 +71,7 @@ public class Bridge1_17 {
      * @param player
      * @return
      */
-    public static boolean canStandOnPowderSnow(final Player player) {
+    public static boolean hasLeatherBootsOn(final Player player) {
         if (!hasIsFrozen()) {
             return false;
         }
