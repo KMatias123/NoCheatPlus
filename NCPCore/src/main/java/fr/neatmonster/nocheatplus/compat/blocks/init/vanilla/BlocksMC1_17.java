@@ -164,7 +164,7 @@ public class BlocksMC1_17 implements BlockPropertiesSetup {
         BlockProperties.setBlockProps("TUFF", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 1.5f, BlockProperties.secToMs(7.5, 1.15, 0.6, 0.4, 0.3, 0.25, 0.2)));
         BlockFlags.addFlags("POWDER_SNOW", BlockFlags.FULL_BOUNDS | BlockProperties.F_POWDERSNOW | BlockProperties.F_CLIMBABLE | BlockProperties.F_IGN_PASSABLE
                             // Only if equipped with leather boots actually.
-                            | BlockProperties.F_GROUND_HEIGHT);
+                            | BlockProperties.F_GROUND | BlockProperties.F_GROUND_HEIGHT);
         //BlockProperties.setBlockProps("POWDER_SNOW", new BlockProperties.BlockProps(BlockProperties.woodPickaxe, 0.25f, BlockProperties.secToMs(0.4)));
         BlockInit.setPropsAs("POWDER_SNOW_CAULDRON", Material.CAULDRON);
         BlockInit.setPropsAs("WATER_CAULDRON", Material.CAULDRON);
