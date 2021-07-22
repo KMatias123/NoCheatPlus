@@ -41,7 +41,7 @@ public enum LiftOffEnvelope {
     BERRY_JUMP(0.35, 0.54, 5, true), 
     // TODO: jump height
     // Powder snow is considered as reset condition so we don't care about the jump phase.
-    LIMIT_POWDER_SNOW(0.63, 1.35, 0, true) 
+    LIMIT_POWDER_SNOW(0.63, 0.63, 0, true) 
     ;
 
     private double maxJumpGain;
@@ -70,7 +70,22 @@ public enum LiftOffEnvelope {
             return maxJumpGain;
         }
     }
-    
+
+    /**
+     * Minimal distance expected with lift-off.
+     * @param jumpAmplifier
+     * @param factor
+     * @return
+     */
+    public double getMinJumpGain(double jumpAmplifier, double factor) {
+        if (jumpEffectApplies && jumpAmplifier != 0.0) {
+            return Math.max(0.0, maxJumpGain + 0.1 * jumpAmplifier * factor);
+        }
+        else {
+            return maxJumpGain;
+        }
+    }
+
     /**
      * Maximum distance expected with lift-off.
      * 

@@ -58,6 +58,7 @@ import fr.neatmonster.nocheatplus.utilities.location.LocUtil;
 import fr.neatmonster.nocheatplus.utilities.location.PlayerLocation;
 import fr.neatmonster.nocheatplus.utilities.location.RichEntityLocation;
 import fr.neatmonster.nocheatplus.utilities.location.TrigUtil;
+import fr.neatmonster.nocheatplus.utilities.map.BlockProperties;
 import fr.neatmonster.nocheatplus.workaround.IWorkaroundRegistry.WorkaroundSet;
 
 /**
@@ -469,9 +470,10 @@ public class MovingData extends ACheckData implements IDataOnRemoveSubCheckData,
             liftOffEnvelope = LiftOffEnvelope.NO_JUMP;
             nextFrictionHorizontal = nextFrictionVertical = 0.0;
         }
-        else if (loc.isInPowderSnow()) {
+        else if (BlockProperties.isPowderSnow(loc.getTypeId())) {
             liftOffEnvelope = LiftOffEnvelope.LIMIT_POWDER_SNOW;
-            nextFrictionHorizontal = nextFrictionVertical = 0.0;
+            nextFrictionHorizontal = 0.9; // From PowderSnowBlock(nmw.level.block)
+            nextFrictionVertical = 0.0;
         }
         // Actually, here some friction may apply (Vertical)...
         else if (loc.isInBerryBush()) {

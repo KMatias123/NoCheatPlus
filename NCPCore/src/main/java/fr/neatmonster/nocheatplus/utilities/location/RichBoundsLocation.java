@@ -987,6 +987,14 @@ public class RichBoundsLocation implements IGetBukkitLocation, IGetBlockPosition
         return onGround;
     }
 
+    public boolean adjustOnGround(boolean change) {
+        if (onGround != null && onGround && change) {
+            onGround = false;
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Simple block-on-ground check for given margin (no entities). Meant for
      * checking bigger margin than the normal yOnGround.

@@ -440,6 +440,28 @@ public class SurvivalFly extends Check {
             tags.add("groundstep");
         }
 
+        // TODO: Test, adjust.
+        else if (data.liftOffEnvelope == LiftOffEnvelope.LIMIT_POWDER_SNOW) {
+            final double yToBlock = from.getY() - from.getBlockY();
+            boolean fall = false;
+            if (yToBlock <= cc.yOnGround) {
+                // TODO: Cap at 1.0?
+                vAllowedDistance = data.liftOffEnvelope.getMinJumpGain(data.jumpAmplifier, 1.5);
+            }
+            else {
+                if (Bridge1_17.hasLeatherBootsOn(player)) {
+                    vAllowedDistance = yDistance < 0 ? Magic.snowClimbSpeedDescend : Magic.snowClimbSpeedAscend;
+                } else {
+                    vAllowedDistance = -Magic.snowClimbSpeedDescend;
+                    fall = true;
+                }
+            }
+            final double yDistDiffEx = yDistance - vAllowedDistance;
+            final boolean violation = fall ? Math.abs(yDistDiffEx) > 0.05 : Math.abs(yDistance) > Math.abs(vAllowedDistance);
+            vDistanceAboveLimit = violation ? yDistance : 0;
+            if (vDistanceAboveLimit > 0.0) tags.add("powdersnow");
+        }
+
         // HoneyBlock
         else if (from.isOnHoneyBlock()) {
             data.sfNoLowJump = true;
@@ -589,7 +611,7 @@ public class SurvivalFly extends Check {
                 data.liftOffEnvelope = LiftOffEnvelope.LIMIT_LIQUID;
             }
         }
-        else if (thisMove.to.inPowderSnow) {
+        else if (BlockProperties.isPowderSnow(to.getTypeId())) {
             data.liftOffEnvelope = LiftOffEnvelope.LIMIT_POWDER_SNOW;
         }
         else if (thisMove.to.inWeb) {
@@ -620,7 +642,7 @@ public class SurvivalFly extends Check {
                 data.liftOffEnvelope = LiftOffEnvelope.LIMIT_LIQUID;
             }
         }
-        else if (thisMove.from.inPowderSnow) {
+        else if (BlockProperties.isPowderSnow(from.getTypeId())) {
             data.liftOffEnvelope = LiftOffEnvelope.LIMIT_POWDER_SNOW;
         }
         else if (thisMove.from.inWeb) {
@@ -2432,9 +2454,7 @@ public class SurvivalFly extends Check {
         data.clearActiveHorVel();
         final double jumpHeight = 1.35 + (data.jumpAmplifier > 0 ? (0.6 + data.jumpAmplifier - 1.0) : 0.0);
         final double maxJumpGain = data.liftOffEnvelope.getMaxJumpGain(data.jumpAmplifier) + 0.1;
-        final double maxSpeed = yDistance < 0.0 ? 
-                                (thisMove.from.inPowderSnow ? Magic.snowClimbSpeedDescend : Magic.climbSpeedDescend) :
-                                (thisMove.from.inPowderSnow ? Magic.snowClimbSpeedAscend : Magic.climbSpeedAscend);
+        final double maxSpeed = yDistance < 0.0 ? Magic.climbSpeedDescend : Magic.climbSpeedAscend;
 
         if (Math.abs(yDistance) > maxSpeed) {
             if (from.isOnGround(jumpHeight, 0D, 0D, BlockProperties.F_CLIMBABLE)) {

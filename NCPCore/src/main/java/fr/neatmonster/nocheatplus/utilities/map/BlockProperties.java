@@ -2790,6 +2790,17 @@ public class BlockProperties {
     }
 
     /**
+     * Checks if is PowderSnow.
+     *
+     * @param id
+     *            the id
+     * @return true, if is leaves
+     */
+    public static final boolean isPowderSnow(final Material id) {
+        return (getBlockFlags(id) & F_POWDERSNOW) != 0;
+    }
+
+    /**
      * Might hold true for liquids too.
      *
      * @param blockType
